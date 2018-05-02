@@ -1,6 +1,0 @@
-clear; clc;
-[D, Dc] = readMeasurementMatrix(); % points and centered points
-
-[U,S,V] = svd(Dc);
-
-[U
