@@ -4,22 +4,22 @@
 % pink dots are the tracked points
 %%%You can also not follow this instrcution and implement the tracker
 %%%according to your own interpretation!
-function [pointsx, pointsy, Vx, Vy] = LKtracker(p,im_set,sigma,dp)
+function [pointsx, pointsy, Vx, Vy] = LKtracker(p_set,im_set,sigma,dp)
 
 
 % define image sizes
 [h,w,N] = size(im_set);
 
 % nr. of points per image
-n = size(p,2);
+n = size(p_set,2);
 
 %pre-allocate point locations 
 pointsx = zeros(N,n);
 pointsy = zeros(N,n);
 
 % initial point location
-pointsx(1,:) = p(1,:);
-pointsy(1,:) = p(2,:);
+pointsx(1,:) = p_set(1,:);
+pointsy(1,:) = p_set(2,:);
 
 %pre-allocate velocities
 Vx = zeros(N,n);
@@ -45,8 +45,8 @@ end
 
 for num = 1:N-1 % iterating through images (N)
     for i = 1:n % iterating through points (columns->n)
-        x = round(p(2*num-1,n));        % x-center of the patch, forced integer
-        y = round(p(2*num,n));          % y-center of the patch, forced integer
+        x = round(p_set(2*num-1,n));        % x-center of the patch, forced integer
+        y = round(p_set(2*num,n));          % y-center of the patch, forced integer
         
         xmin = max(1,x-(dp-1)/2); % cut-off x-window at 0
         xmax = min(x+(dp-1)/2,w); % cut-off x-window at w
@@ -65,10 +65,10 @@ for num = 1:N-1 % iterating through images (N)
         b = reshape(It(yrange,xrange,num),[win_size,1]);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         v = inv(A'*A)*A'*b;
-        pointsx(num+1,i) = pointsx(num,i)+v(1);
-        pointsy(num+1,i) = pointsy(num,i)+v(2);
         Vx(num+1,i) = v(1);
         Vy(num+1,i) = v(2);
+        pointsx(num+1,i) = pointsx(num,i)+Vx(num+1,i);
+        pointsy(num+1,i) = pointsy(num,i)+Vy(num+1,i);
     end
     %     figure(1)
     %     imshow(im(:,:,num),[])
