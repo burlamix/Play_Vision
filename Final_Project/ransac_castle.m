@@ -1,11 +1,11 @@
-function [ X ] = ransac_castle(feats_prev, feats_curr, matches, pix_thr)
+function [ X, xL_best, yL_best, xR_best, yR_best] = ransac_castle(feats_prev, feats_curr, matches, pix_thr)
 %RANSAC_CASTLE Summary of this function goes here
 %   Detailed explanation goes here
 
 m = 50; % nr. of sample pairs
 v = 0.2; % prob of selecting outlier
 N = ceil((log10(1-0.99)/log10(1-(1-v)^m))); % nr. of loops
-
+inliers_best = 0;
 
 
 for j = 1:N
