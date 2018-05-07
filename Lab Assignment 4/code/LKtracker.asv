@@ -31,19 +31,14 @@ Iy=zeros(size(im_set) - [0 0 1]);
 It=zeros(size(im_set) - [0 0 1]);
 
 %calculate the gaussian derivative
-%[G, Gx, Gy] = gaussian2d(3, 3, sigma);
-%G = fspecial('gaussian', [1 2*ceil(2*sigma)+1],sigma);
-G = gaussian(sigma);
-Gd = gaussianDer(G,sigma);
+[G, Gx, Gy] = gaussian2d(3, 3, sigma);
+
 %find x,y and t derivative
 for i=1:N-1 % start at image 2, image 1 has no time derivative
-    
-    Ix(:,:,i)=conv2(conv2(im_set(:,:,i+1),Gd,'same'),G','same');
-    Iy(:,:,i)=conv2(conv2(im_set(:,:,i+1),Gd','same'),G,'same');
-    %Ix(:,:,i)=conv2(im_set(:,:,i+1), Gx,'same');
-    %Iy(:,:,i)=conv2(im_set(:,:,i+1), Gy,'same');
-    %It(:,:,i)=conv2((im_set(:,:,i+1)-im_set(:,:,i)),G,'same');
-    It(:,:,i)=im_set(:,:,i)-im_set(:,:,i+1);
+    Ix(:,:,i)=conv2(im_set(:,:,i+1), Gx,'same');
+    Iy(:,:,i)=conv2(im_set(:,:,i+1), Gy,'same');
+    It(:,:,i)=conv2((im_set(:,:,i)-im_set(:,:,i+1)),G,'same');
+    %It(:,:,i)=im_set(:,:,i)-im_set(:,:,i+1);
      
 end
 
@@ -74,12 +69,11 @@ for num = 1:N-1 % iterating through images (N)
         % make b matrix consisting of derivatives in time
         b = reshape(It(yrange,xrange,num),[win_size,1]);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        v = pinv(A'*A) * A' * double(b);
-        %v{i}(1), v{i}(2)
+        v = inv(A'*A)*A'*b;
         Vx(num+1,i) = v(1);
         Vy(num+1,i) = v(2);
-        pointsx(num+1,i) = pointsx(num,i)-Vx(num+1,i);
-        pointsy(num+1,i) = pointsy(num,i)-Vy(num+1,i);
+        pointsx(num+1,i) = pointsx(num,i)+Vx(num+1,i);
+        pointsy(num+1,i) = pointsy(num,i)+Vy(num+1,i);
     end
     %     figure(1)
     %     imshow(im(:,:,num),[])

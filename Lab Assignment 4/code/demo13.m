@@ -3,9 +3,13 @@
 % plotted for every frame.
 
 %function demo13()
-clear;clc;
+clear;clc; close all
 %load points
-Points = textread('..\model_house\measurement_matrix.txt');
+%Points = textread('..\model_house\measurement_matrix.txt');
+[Points, Points_norm] = readMeasurementMatrix();
+
+Pointsx = Points(1:2:202,:);
+Pointsy = Points(2:2:202,:);
 
 for num = 1:101
     imageLoc = ['..\model_house\frame' num2str(num, '%08d') '.jpg'];
@@ -17,7 +21,7 @@ for num = 1:101
 end
 
 %track points
-[pointsx,pointsy,Vx,Vy]=LKtracker(Points,Imf,1,15);
+[pointsx,pointsy]=LKtracker_TA(Points,Imf,1);
 
 % save('Xpoints','pointsx')
 % save('Ypoints','pointsy')
@@ -28,7 +32,7 @@ for num = 1:101
     hold on
     plot(Points(num*2-1,:),Points(num*2,:),'b.');
     plot(pointsx(num,:),pointsy(num,:),'r.');
-    quiver(pointsx(num,:),pointsy(num,:),Vx(num,:),Vy(num,:));
+    %quiver(pointsx(num,:),pointsy(num,:),Vx(num,:),Vy(num,:));
     pause(0.01)
 end
 
