@@ -17,8 +17,8 @@ pointsx(1,:) = p(1,:);
 pointsy(1,:) = p(2,:);
 
 %calculate the gaussian derivative
-G = fspecial('gaussian',[1 2*ceil(3*sigma)+1],sigma)
-Gd = gaussianDer(G,sigma)
+G = fspecial('gaussian',[1 2*ceil(3*sigma)+1],sigma);
+Gd = gaussianDer(G,sigma);
 
 %find x,y and t derivative
 for i=1:size(im,3)-1

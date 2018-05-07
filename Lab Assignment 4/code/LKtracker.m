@@ -32,18 +32,15 @@ It=zeros(size(im_set) - [0 0 1]);
 
 %calculate the gaussian derivative
 %[G, Gx, Gy] = gaussian2d(3, 3, sigma);
-%G = fspecial('gaussian', [1 2*ceil(2*sigma)+1],sigma);
-G = gaussian(sigma);
+G = fspecial('gaussian',[1 2*ceil(3*sigma)+1],sigma);
+%G = gaussian(sigma);
 Gd = gaussianDer(G,sigma);
 %find x,y and t derivative
 for i=1:N-1 % start at image 2, image 1 has no time derivative
-    
-    Ix(:,:,i)=conv2(conv2(im_set(:,:,i+1),Gd,'same'),G','same');
-    Iy(:,:,i)=conv2(conv2(im_set(:,:,i+1),Gd','same'),G,'same');
-    %Ix(:,:,i)=conv2(im_set(:,:,i+1), Gx,'same');
-    %Iy(:,:,i)=conv2(im_set(:,:,i+1), Gy,'same');
-    %It(:,:,i)=conv2((im_set(:,:,i+1)-im_set(:,:,i)),G,'same');
-    It(:,:,i)=im_set(:,:,i)-im_set(:,:,i+1);
+      
+    Ix(:,:,i)=conv2(conv2(im_set(:,:,i),Gd,'same'),G','same');
+    Iy(:,:,i)=conv2(conv2(im_set(:,:,i),Gd','same'),G,'same');
+    It(:,:,i)=im_set(:,:,i+1)-im_set(:,:,i);
      
 end
 
@@ -52,8 +49,9 @@ end
 
 for num = 1:N-1 % iterating through images (N)
     for i = 1:n % iterating through points (columns->n)
-        x = round(p_set(2*num-1,n));        % x-center of the patch, forced integer
-        y = round(p_set(2*num,n));          % y-center of the patch, forced integer
+        
+        x = round(p_set(2*num-1,i));        % x-center of the patch, forced integer
+        y = round(p_set(2*num,i));          % y-center of the patch, forced integer
         
         xmin = max(1,x-(dp-1)/2); % cut-off x-window at 0
         xmax = min(x+(dp-1)/2,w); % cut-off x-window at w
@@ -63,10 +61,7 @@ for num = 1:N-1 % iterating through images (N)
         xrange = xmin:xmax; % x-window
         yrange = ymin:ymax; % y-window
         win_size = length(xrange)*length(yrange);
-        
-%         if (win_size < dp*dp)
-%             fprintf('window cut-off: xrange: %d, yrange: %d',length(xrange), length(yrange))
-%         end
+
         % make A matrix consisting of derivatives around the pixel location
         A1 = reshape(Ix(yrange,xrange,num),[win_size,1]); %y=rows, x=cols!!
         A2 = reshape(Iy(yrange,xrange,num),[win_size,1]);
@@ -75,11 +70,9 @@ for num = 1:N-1 % iterating through images (N)
         b = reshape(It(yrange,xrange,num),[win_size,1]);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         v = pinv(A'*A) * A' * double(b);
-        %v{i}(1), v{i}(2)
-        Vx(num+1,i) = v(1);
-        Vy(num+1,i) = v(2);
-        pointsx(num+1,i) = pointsx(num,i)-Vx(num+1,i);
-        pointsy(num+1,i) = pointsy(num,i)-Vy(num+1,i);
+
+        pointsx(num+1,i) = pointsx(num,i)-v(1);
+        pointsy(num+1,i) = pointsy(num,i)-v(2);
     end
     %     figure(1)
     %     imshow(im(:,:,num),[])
