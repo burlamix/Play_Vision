@@ -8,16 +8,11 @@ L = ceil((log10(1-0.9999)/log10(1-w^m))); % nr. of loops
 pc = 0;
 inliers_best = 0;
 
-
-
 % define point arrays
-x_L = points_left(1,:);
-y_L = points_left(2,:);
-x_R = points_right(1,:);
-y_R = points_right(2,:);
-
-N = length(x_L);
-
+x_L = p_L(1,:);
+y_L = feats_left(2,matches(1,:));
+x_R = feats_right(1,matches(2,:));
+y_R = feats_right(2,matches(2,:));
 % pre-allocate transformation matrices
 A = zeros(2*m,6);
 b = zeros(2*m,1);
@@ -26,7 +21,7 @@ b = zeros(2*m,1);
 for j = 1:L
     %%% Sampling Stage
     % m unique samples (from columns)
-    [~,idx] = datasample(x_L,m,2,'Replace',false);
+    [~,idx] = datasample(matches,m,2,'Replace',false);
     % sample point coordinates
     x_L_s = x_L(idx);
     y_L_s = y_L(idx);
@@ -79,7 +74,7 @@ pix_dist = pix_dist_best;
 % Return coordinates of points of best fit
 p_L = [xL_best; yL_best];
 p_R = [xR_best; yR_best];
-fprintf("\nBest fit returned %d inliers out of %d matches after %d loops\n", inliers, N, L);
+fprintf("\nBest fit returned %d inliers out of %d matches after %d loops\n", inliers, length(matches), L);
 return
 end
 

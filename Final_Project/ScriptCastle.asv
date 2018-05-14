@@ -45,19 +45,15 @@ pix_thr = 10;
 fprintf("Applying RANSAC...");
 
 % pre-allocate stuff
-p_L = cell(1,18);
-p_R= cell(1,18);
-pL_best = cell(1,18);
-pR_best = cell(1,18);
-n_inliers = zeros(1,18);
+
 for i = 1:18
     p_L{i} = feats{i}(1:2,matches{i}(1,:));
     p_R{i} = feats{i+1}(1:2,matches{i}(2,:));
-    [n_inliers(i), pix_dist, pL_best{i}, pR_best{i}] =ransac_func(p_L{i}, p_R{i}, pix_thr); 
-%     plotMatches(castle{i},castle{i+1}, p_L{i}, p_R{i})
-%     pause
-%     plotMatches(castle{i},castle{i+1}, pL_best{i}, pR_best{i})
-%     pause
+    [n_inliers{i}, pix_dist, pL_best{i}, pR_best{i}] =ransac_func(p_L{i}, p_R{i}, pix_thr); 
+    plotMatches(castle{i},castle{i+1}, p_L{i}, p_R{i})
+    pause
+    plotMatches(castle{i},castle{i+1}, pL_best{i}, pR_best{i})
+    pause
 end
  
 %% structure from motion 
@@ -68,7 +64,7 @@ end
 %select from it
 for i = 1:18
 
-    D = [pL_best{i}; pR_best{i}];
+    D = [xL_best{i}; yL_best{i}; xR_best{i}; yR_best{i}];
 
     [U,W,VT] = svd(D);
 
@@ -83,8 +79,8 @@ for i = 1:18
     S = sqrt(W3)*(V3');
     
     
-    scatter3(S(1,:),S(2,:),S(3,:))
-    scatter3(M(:,1),M(:,2),M(:,3))
+    %scatter3(S(1,:),S(2,:),S(3,:))
+    %scatter3(M(:,1),M(:,2),M(:,3))
 end
 
 
