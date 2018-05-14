@@ -1,5 +1,5 @@
 function [M, MC] = readMeasurementMatrix( )
-    M = textread('model_house/measurement_matrix.txt');
+    M = textread('../model_house/measurement_matrix.txt');
     
     % Center it
     numPts = size(M,2);

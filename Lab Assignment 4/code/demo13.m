@@ -5,14 +5,14 @@
 %function demo13()
 clear;clc; close all
 %load points
-%Points = textread('..\model_house\measurement_matrix.txt');
-[Points, Points_norm] = readMeasurementMatrix();
+Points = textread('..\model_house\measurement_matrix.txt');
+%[Points, Points_norm] = readMeasurementMatrix();
 
 Pointsx = Points(1:2:202,:);
 Pointsy = Points(2:2:202,:);
 
 for num = 1:101
-    imageLoc = ['model_house/frame' num2str(num, '%08d') '.jpg'];
+    imageLoc = ['../model_house/frame' num2str(num, '%08d') '.jpg'];
     im = double(imread(imageLoc))/255;
     if num == 1
         Imf=zeros(size(im,1),size(im,2),101);
@@ -22,7 +22,7 @@ end
 
 %track points
 %[pointsx,pointsy]=LKtracker_TA(Points,Imf,1);
-[pointsx,pointsy]=LKtracker(Points,Imf,1,15);
+[pointsx,pointsy, Vx, Vy]=LKtracker(Points,Imf,1,15);
 
 % save('Xpoints','pointsx')
 % save('Ypoints','pointsy')

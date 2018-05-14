@@ -20,7 +20,9 @@ S = sqrt(W3)*(V3');
 
 
 % plot structure
-scatter3(S(1,:),S(2,:),S(3,:))
-%pause(0.5)
+grid on
+plot3(S(1,:),S(2,:),S(3,:),'.r')
+pause
 % plot motion
-%scatter3(M(:,1),M(:,2),M(:,3))
+grid on
+plot3(M(:,1),M(:,2),M(:,3),'.b')
