@@ -28,12 +28,24 @@ for i = 1:18
     matches{i} = vl_ubcmatch(desc{i},desc{i+1});
 end
 toc;
+
+
+save SIFTmatches feats desc matches
+save Images castle castle_gray
+clear;
+%% Load
+tic
+fprintf("reading input...");
+load Images
+load SIFTmatches
+fprintf("done\n");
+toc
 %% RANSAC
 pix_thr = 10;
 tic;
 for i = 1:18
     
-      [X{i}, xL_best{i}, yL_best{i}, xR_best{i}, yR_best{i}] =ransac_castle(feats{i}, feats{i+1}, matches{i},pix_thr) 
+      [X{i}, ninliers, pix_dist, pL_best{i}, pR_best{i}] =ransac_func(feats{i}, feats{i+1}, matches{i},pix_thr); 
      %xL_best
      disp(i)
      %m1 = X(1); m2 = X(2); m3 = X(3); m4 = X(4); t1 = X(5); t2 = X(6);
