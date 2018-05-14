@@ -65,7 +65,7 @@ F = computeFundamental(p_L, p_R);
 p_Lh = [p_L; ones(1, size(p_L, 2))];
 p_Rh = [p_R; ones(1, size(p_R, 2))];
 
-% Normalize matched points
+% Normalize homogeneous matched points
 [p_Ln, TL] = normalizePoints(p_Lh);
 [p_Rn, TR] = normalizePoints(p_Rh);
 
@@ -75,22 +75,25 @@ F_T = TR'*F_N*TL;
 
 %% 4) Use RANSAC for fundamental matrices
 
-% Make all feature points homogeneous
-pf_Lh = [feats{i}(1:2,:); ones(1,size(feats{i},2))];
-pf_Rh = [feats{i+1}(1:2,:); ones(1,size(feats{i+1},2))];
+% Make all matched feature points homogeneous
+pf_Lh = [feats{i}(1:2,matches{i}(1,:)); ones(1,size(matches{i},2))];
+pf_Rh = [feats{i+1}(1:2,matches{i}(2,:)); ones(1,size(matches{i},2))];
 
-% Normalize feature points
-[pf_Ln, ~] = normalizePoints(pf_Lh);
-[pf_Rn, ~] = normalizePoints(pf_Rh);
+% Normalize homogeneous matched feature points
+[pf_Ln, TL_R] = normalizePoints(pf_Lh);
+[pf_Rn, TR_R] = normalizePoints(pf_Rh);
 
-samp_thr = 0.005;
-% Use RANSAC on fundamental matrix for the normalized feature points
-[F_R, inliers_R, samp_dist, p_L_F, p_R_F] = ransac_fundamental(pf_Ln, pf_Rn, matches{i}, samp_thr);
+samp_thr = 0.00001;
+% Use RANSAC on fundamental matrix for the normalized matched feature points
+[F_R, inliers_R, samp_dist, p_L_F, p_R_F] = ransac_fundamental(pf_Ln, pf_Rn, samp_thr);
+
+% Unnormalize F
+F_R = TR_R'*F_R*TL_R;
 
 %% 5) Draw epipolar lines
 % Normalization
-plotEpilines(teddy{1}, teddy{2}, p_Lh(:,1:3), p_Rh(:,1:3), F_T)
+plotEpilines(teddy{2}, teddy{1}, p_Rh(:,:), p_Lh(:,:), F_T)
 pause;
 close(gcf)
 % Ransac
-plotEpilines(teddy{1}, teddy{2}, p_Lh(:,1:3), p_Rh(:,1:3), F_R)
+plotEpilines(teddy{1}, teddy{2}, p_Lh(:,:), p_Rh(:,:), F_R)
