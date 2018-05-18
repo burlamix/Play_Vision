@@ -66,10 +66,10 @@ for j = 1:L
     end
     
     % Some timing estimates
-    if mod(j,ceil(L/10)) == 0
-        pc = pc+10;
-        fprintf("%d%% done...", pc);
-    end
+%     if mod(j,ceil(L/10)) == 0
+%         pc = pc+10;
+%         fprintf("%d%% done...", pc);
+%     end
     
 end
 % Define X as the best found fit

@@ -7,11 +7,10 @@ Dy = Dc(2:2:202,:);
 Dp = [Dx; Dy];
 
 % svd
-[U,W,VT] = svd(Dc);
+[U,W,V] = svd(Dc);
 
 U3 = U(:,1:3);
-V = VT';
-V3 = VT(:,1:3);
+V3 = V(:,1:3);
 W3 = W(1:3,1:3);
 
 % motion and structure
