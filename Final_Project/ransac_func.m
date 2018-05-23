@@ -1,4 +1,4 @@
-function [inliers, pix_dist, p_L, p_R] = ransac_func(points_left, points_right, pix_thr)
+function [inliers, pix_dist, p_L, p_R, T] = ransac_func(points_left, points_right, pix_thr)
 %RANSAC_CASTLE Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -74,6 +74,11 @@ for j = 1:L
 end
 % Define X as the best found fit
 X = X_best;
+m1 = X(1); m2 = X(2); m3 = X(3); m4 = X(4); t1 = X(5); t2 = X(6);
+T = [m1 m2 t1;...
+    m3 m4 t2;...
+    0 0 1];
+
 inliers = inliers_best;
 pix_dist = pix_dist_best;
 % Return coordinates of points of best fit

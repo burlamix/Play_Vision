@@ -89,22 +89,13 @@ Tform_R = maketform('affine',eye(3));
 
 [xL_limits, yL_limits] = outputLimits(Tform_new, [1 width_L], [1 height_L]);
 
-xmin = floor(min(xL_limits(1),0));
+xmin = floor(min(xL_limits(1)));
 xmax = ceil(max(xL_limits(2),min(width_L,width_R)));
-ymin = floor(min(yL_limits(1),0));
+ymin = floor(min(yL_limits(1)));
 ymax = ceil(max(yL_limits(2),max(height_L,height_R))); 
-
-height_comb = xmax-xmin;
-width_comb = ymax-ymin;
-
-%panoramaView = imref2d([height_comb width_comb], xL_limits, yL_limits);
-
 
 xdata = [xmin xmax];
 ydata = [ymin ymax];
-
-%newImsize = [-xL_limits(1)+max(xL_limits(2),height_R), -yL_limits(1)+max(yL_limits(2),width_R)];
-
 
 R_right = imtransform(busright_G, Tform_R, 'bicubic', 'Xdata', xdata, 'Ydata', ydata, 'FillValues', NaN);
 R_left = imtransform(busleft_G, Tform_old, 'bicubic', 'Xdata', xdata, 'Ydata', ydata, 'FillValues', NaN);
@@ -113,7 +104,3 @@ R(:,:,1)=R_right;
 R(:,:,2)=R_left;
 Z = nanmean(R,3);
 imshow(Z);
-
-
-
-%imshowpair(R,busright,'montage')

@@ -191,11 +191,11 @@ ydata = [ymin ymax];
 
 fprintf("xydata defined\n")
 
-%R_center = imtransform(castle_gray{2}, Tform_C_old, 'bicubic', 'Xdata', xdata, 'Ydata', ydata, 'FillValues', NaN);
-R_right = imtransform(castle_gray{2}, Tform_R, 'bicubic', 'Xdata', xdata, 'Ydata', ydata, 'FillValues', NaN);
 R_left = imtransform(castle_gray{1}, Tform_L_old, 'bicubic', 'Xdata', xdata, 'Ydata', ydata, 'FillValues', NaN);
+%R_center = imtransform(castle_gray{2}, Tform_C_old, 'bicubic', 'Xdata', xdata, 'Ydata', ydata, 'FillValues', NaN);
+R_right = imtransform(castle_gray{3}, Tform_R, 'bicubic', 'Xdata', xdata, 'Ydata', ydata, 'FillValues', NaN);
 
-fprintf("new im transforms:\n")
+fprintf("new im transforms")
 
 R(:,:,1)=R_right;
 %R(:,:,2)=R_center;
