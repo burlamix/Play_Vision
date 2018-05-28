@@ -11,9 +11,11 @@ desc = cell(1,N);
 %% script shell
 for i = 1:N
     
-    command = sprintf('extract_features/extract_features.ln -harhes -i TeddyBearPNG/obj02_%03d.png -sift -pca extract_features/harhessift.basis',i);
+    command1 = sprintf('extract_features/extract_features.ln -haraff -i TeddyBearPNG/obj02_%03d.png -sift -pca extract_features/harhessift.basis',i);
+    %command2 = sprintf('extract_features/extract_features.ln -hesaff -i TeddyBearPNG/obj02_%03d.png -sift -pca extract_features/harhessift.basis',i);
     %command
-    system(char(command));
+    %system(char(command1));
+    [x, y, a, b, c, desc ] = system(char(command1));
 end
 
 %% 1a) Load Images and Perform SIFT
