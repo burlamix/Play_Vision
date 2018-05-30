@@ -43,3 +43,29 @@ for i = 1:N
     end
     newmatches{i} = matches{i}(:,ind_inliers{i});
 end
+
+%% point view matrix
+
+
+matches_pv = matches;
+
+point_mat = [];
+
+point_mat(1:2,:) = matches_pv{1}(1:2,1:end);
+offset = 0;
+for i = 2:15
+    [~, ia, ib] = intersect(matches_pv{i-1}(2,:), matches_pv{i}(1,:));
+    point_mat(i+1,offset+ia) = matches_pv{i}(2,ib);
+    offset = size(point_mat,2);
+    matches_pv{i}(:,ib) = [];
+    point_mat = horzcat(point_mat, vertcat(zeros(i-1,size(matches_pv{i},2)), matches_pv{i}));
+end
+
+i = 16; offset = 0;
+[~, ia, ib] = intersect(matches_pv{i-1}(2,:), matches_pv{i}(1,:));
+point_mat(i,offset+ia) = matches_pv{i}(2,ib);
+%offset = size(point_mat,2);
+%matches_pv{i}(:,ib) = [];
+%point_mat = horzcat(point_mat, vertcat(zeros(i-1,size(matches_pv{i},2)), matches_pv{i}));
+
+fprintf("done")
