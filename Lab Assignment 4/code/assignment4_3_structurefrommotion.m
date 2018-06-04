@@ -13,15 +13,19 @@ U3 = U(:,1:3);
 V3 = V(:,1:3);
 W3 = W(1:3,1:3);
 
+D3 = U3*W3*V3';
+
 % motion and structure
 M = U3*sqrt(W3);
 S = sqrt(W3)*(V3');
 
 
 % plot structure
-grid on
+figure(1);
 plot3(S(1,:),S(2,:),S(3,:),'.r')
-pause
-% plot motion
 grid on
+
+% plot motion
+figure(2);
 plot3(M(:,1),M(:,2),M(:,3),'.b')
+grid on

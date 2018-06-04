@@ -2,10 +2,10 @@ clear; clc; close(gcf);
 
 %% Pre-allocating images
 N  = 19;
-castle = cell(1,19);
-castle_gray = cell(1,19);
-feats = cell(1,19);
-desc = cell(1,19);
+castle = cell(1,N);
+castle_gray = cell(1,N);
+feats = cell(1,N);
+desc = cell(1,N);
 
 %% Load Images and Perform SIFT
 tic;
@@ -22,19 +22,24 @@ for i = 1:N
 %     imshow(castle{i});
 %     hold on
 %     scatter(Xfeats,Yfeats);
-%     pause()
+    %pause()
 toc;    
 end
-close(gcf)
-matches = cell(1,18);
-for i = 1:(N-1)
-    matches{i} = vl_ubcmatch(desc{i},desc{i+1});
+%close(gcf)
+
+matches = cell(1,N);
+for i = 1:N
+    if i < N
+        matches{i} = vl_ubcmatch(desc{i},desc{i+1});
+    else
+        matches{i} = vl_ubcmatch(desc{i},desc{1});
+    end
 end
 toc;
 
 %% save stuff
 save SIFTmatches feats desc matches N
-save Images castle castle_gray
+save Images castle 
 clear;
 toc;
 
@@ -52,31 +57,49 @@ pix_thr = 8;
 fprintf("Applying RANSAC...");
 
 % pre-allocate stuff
-p_L = cell(1,N-1);
-p_R= cell(1,N-1);
-pL_best = cell(1,N-1);
-pR_best = cell(1,N-1);
-n_inliers = zeros(1,N-1);
-T = cell(1,N-1);
+p_L = cell(1,N);
+p_R= cell(1,N);
+pL_best = cell(1,N);
+pR_best = cell(1,N);
+n_inliers = zeros(1,N);
+T = cell(1,N);
 
 % plot&save figures y/n
 save_figs = 0;
-for i = 1:(N-1)
+for i = 1:N
     p_L{i} = feats{i}(1:2,matches{i}(1,:));
-    p_R{i} = feats{i+1}(1:2,matches{i}(2,:));
+    if i < N
+        p_R{i} = feats{i+1}(1:2,matches{i}(2,:));
+    else
+        p_R{i} = feats{1}(1:2,matches{i}(2,:));
+    end
+    
     [n_inliers(i), pix_dist, pL_best{i}, pR_best{i}, T{i}] =ransac_func(p_L{i}, p_R{i}, pix_thr); 
     
     if (save_figs)
-        plotMatches(castle{i},castle{i+1}, p_L{i}, p_R{i});
-        figname = sprintf("./matched_images/matches_%d.png",i);
-        saveas(gcf,char(figname))
-        close(gcf)
-    
-        plotMatches(castle{i},castle{i+1}, pL_best{i}, pR_best{i})
-        figname = sprintf("./matched_images/matches_%d_RANSAC.png",i);
-        saveas(gcf,char(figname))
-        close(gcf)
-        fprintf("saved fig. %d/%d",i,18);
+        if (i < N)
+            plotMatches(castle{i},castle{i+1}, p_L{i}, p_R{i});
+            figname = sprintf("./matched_images/matches_%d.png",i);
+            saveas(gcf,char(figname))
+            close(gcf)
+
+            plotMatches(castle{i},castle{i+1}, pL_best{i}, pR_best{i})
+            figname = sprintf("./matched_images/matches_%d_RANSAC.png",i);
+            saveas(gcf,char(figname))
+            close(gcf)
+            fprintf("saved fig. %d/%d",i,N);
+        else
+            plotMatches(castle{i},castle{1}, p_L{i}, p_R{i});
+            figname = sprintf("./matched_images/matches_%d.png",i);
+            saveas(gcf,char(figname))
+            close(gcf)
+
+            plotMatches(castle{i},castle{1}, pL_best{i}, pR_best{i})
+            figname = sprintf("./matched_images/matches_%d_RANSAC.png",i);
+            saveas(gcf,char(figname))
+            close(gcf)
+            fprintf("saved fig. %d/%d",i,N);
+        end
     end
 end
  
@@ -93,19 +116,19 @@ end
 
 fundamental_method = "ransac";
 
-for i = 1:(N-1)
+for i = 1:N
     switch fundamental_method
         
         case "ransac"
-            N = length(p_L{i});
+            n = length(p_L{i});
             % compute fundamental matrix w/ ransac
-            [pL_n, TL] = normalizePoints([p_L{i}; ones(1,N)]);
-            [pR_n, TR] = normalizePoints([p_R{i}; ones(1,N)]);
+            [pL_n, TL] = normalizePoints([p_L{i}; ones(1,n)]);
+            [pR_n, TR] = normalizePoints([p_R{i}; ones(1,n)]);
             
             % use fundamental ransac
             samp_thr = 0.0001;
             [Fn, inliers, samp_dist{i}, pL_best{i}, pR_best{i}] = ransac_fundamental(pL_n, pR_n, samp_thr);
-            N = length(pL_best{i});
+            n = length(pL_best{i});
             % unnormalize points
             pL_best{i} = inv(TL)*pL_best{i};
             pR_best{i} = inv(TR)*pR_best{i};
@@ -113,10 +136,10 @@ for i = 1:(N-1)
             pR_best{i} = pR_best{i}(1:2,:);
             
         case "normalized"
-            N = length(pL_best{i});
+            n = length(pL_best{i});
             % normalize points from ransac
-            [pL_n, TL] = normalizePoints([pL_best{i}; ones(1,N)]);
-            [pR_n, TR] = normalizePoints([pR_best{i}; ones(1,N)]);
+            [pL_n, TL] = normalizePoints([pL_best{i}; ones(1,n)]);
+            [pR_n, TR] = normalizePoints([pR_best{i}; ones(1,n)]);
             
             % compute fundamental matrix
             Fn  = computeFundamental(pL_n, pR_n);
@@ -126,7 +149,11 @@ for i = 1:(N-1)
     F{i} = TL'*Fn*TR;
     
     % plot epipolar lines
-    plotEpilines(castle{i}, castle{i+1}, [pL_best{i}; ones(1,N)], [pR_best{i};ones(1,N)], F{i})
+    if i < N
+        plotEpilines(castle{i}, castle{i+1}, [pL_best{i}; ones(1,n)], [pR_best{i};ones(1,n)], F{i})
+    else
+        plotEpilines(castle{i}, castle{1}, [pL_best{i}; ones(1,n)], [pR_best{i};ones(1,n)], F{i})
+    end
     %pause;
     hold off
     
@@ -162,7 +189,7 @@ for i =1:length(pR_best{1})
 end
 
 %% 3 plot
-[~,idx] = datasample(pL_new{1},3,2,'Replace',false); % 3 points
+[~,idx] = datasample(pL_new{1},8,2,'Replace',false); % 3 points
 plotMatches3Im(castle{1}, castle{2}, castle{3}, pL_new{1}(:,idx), pR_new{1}(:,idx), pR_new{2}(:,idx))
 
 %% 
@@ -204,4 +231,29 @@ Z = nanmean(R,3);
 fprintf("nanmean complete")
 imshow(Z);
 
+%% stitching: point view matrix
+
+
+matches_pv = matches;
+
+point_mat = [];
+
+point_mat(1:2,:) = matches_pv{1}(1:2,1:end);
+offset = 0;
+for i = 2:N-1
+    [~, ia, ib] = intersect(matches_pv{i-1}(2,:), matches_pv{i}(1,:));
+    point_mat(i+1,offset+ia) = matches_pv{i}(2,ib);
+    offset = size(point_mat,2);
+    matches_pv{i}(:,ib) = [];
+    point_mat = horzcat(point_mat, vertcat(zeros(i-1,size(matches_pv{i},2)), matches_pv{i}));
+end
+
+i = N; offset = 0;
+[~, ia, ib] = intersect(matches_pv{i-1}(2,:), matches_pv{i}(1,:));
+point_mat(i,offset+ia) = matches_pv{i}(2,ib);
+%offset = size(point_mat,2);
+%matches_pv{i}(:,ib) = [];
+%point_mat = horzcat(point_mat, vertcat(zeros(i-1,size(matches_pv{i},2)), matches_pv{i}));
+
+fprintf("done")
 
