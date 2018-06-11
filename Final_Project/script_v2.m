@@ -92,19 +92,26 @@ point_mat = [];
 point_mat(1:2,:) = matches_pv{1}(1:2,1:end);
 
 offset = 0;
+
+match_match = [];
+
 % loop from second to second-to-last imageset
-for i = 2:N-1
+for i = 2:N
+    i
     % find indices of mutual points
-    [~, ia, ib] = intersect(matches_pv{i-1}(2,:), matches_pv{i}(1,:));
+    [C, ia, ib] = intersect(point_mat(i,:), matches_pv{i}(1,:));
+
     % write next row of matrix
-    point_mat(i+1,offset+ia) = matches_pv{i}(2,ib);
+    point_mat(i+1,ia) = matches_pv{i}(2,ib);
     % update size of pv matrix with the additional rows
-    offset = size(point_mat,2);
+    %offset = size(point_mat,2);
     % clear all the intersecting matches
     matches_pv{i}(:,ib) = [];
     % add the remaining matches to the matrix
     point_mat = horzcat(point_mat, vertcat(zeros(i-1,size(matches_pv{i},2)), matches_pv{i}));
+        
 end
+
 
 % now add intersecting matches of final imageset (N,1)
 i = N; offset = 0;
