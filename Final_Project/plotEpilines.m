@@ -16,7 +16,7 @@ end
 
 
 %% Plot left image and points
-figure; 
+%figure; 
 subplot(2,2,1);
 imshow(image_left); 
 title('Selected points on left image'); 

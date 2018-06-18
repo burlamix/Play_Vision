@@ -13,12 +13,17 @@ width = size(image_left,2);
 % join three equally sized images
 image_big = [image_left image_center image_right];
 
+
+% Define Colorlist
+c = [1 1 0; 1 0 1; 0 1 1; 1 0 0; 0 1 0; 0 0 1; 1 1 1; 0 0 0];
+m = size(c,1); % nr. of colors
+
 % plot lines between images
 imshow(image_big);
 for i = 1:N
     hold on
-    plot([p_L(1,i),p_C(1,i)+width, p_R(1,i)+2*width],[p_L(2,i),p_C(2,i), p_R(2,i)],'g.','MarkerSize',14,'LineWidth',2)
-    plot([p_L(1,i),p_C(1,i)+width, p_R(1,i)+2*width],[p_L(2,i),p_C(2,i), p_R(2,i)],'r')
+    plot([p_L(1,i),p_C(1,i)+width, p_R(1,i)+2*width],[p_L(2,i),p_C(2,i), p_R(2,i)],'.', 'Color', c(mod(i,m)+1,:),'MarkerSize',14,'LineWidth',2)
+    plot([p_L(1,i),p_C(1,i)+width, p_R(1,i)+2*width],[p_L(2,i),p_C(2,i), p_R(2,i)],'Color', c(mod(i,m)+1,:))
 end
 
 end
