@@ -16,7 +16,7 @@ for i = 1:N
     castle{i} = imread(fname);
     castle{i} = castle{i}(500:2200,500:3500,:);
     castle_gray{i} = single(rgb2gray(castle{1,i}))./255;
-    [feats{i}, desc{i}] = vl_sift(castle_gray{i}, 'PeakThresh', 0.01, 'EdgeThresh',10);
+    [feats{i}, desc{i}] = vl_sift(castle_gray{i}, 'PeakThresh', 0.008, 'EdgeThresh',10);
     Xfeats = feats{i}(1,:);
     Yfeats = feats{i}(2,:);
     fprintf('finished image %d/19\n', i);        
@@ -137,8 +137,8 @@ for i = 1:(N-1)
 end
 
 tmp{1} = castle{1}; tmp{2} = castle{2}; tmp{3} = castle{3};
-figure;
-stitchImages(tmp, T);
+%figure;
+%stitchImages(tmp, T);
 
 %% 4+5.) Stitching and Structure-from-Motion
 % define image sets
@@ -157,11 +157,15 @@ sets = [1 2 3 4;...
         13 14 15 16;...
         14 15 16 17;...
         15 16 17 18;...
-        16 17 18 19];
+        16 17 18 19;...
+        17 18 19 1;...
+        18 19 1 2;...
+        19 1 2 3];
     
 m = size(sets,1);
-set_mat = cell(1,4);
-
+set_mat = cell(1,m);
+points2D = cell(1,m);
+imagePoints = cell(1,m);
 % big-ass for loop
 for i = 1:m
     %%% big image set
@@ -219,10 +223,16 @@ for i = 1:m
     Mn{i} = M*C;
     Sn{i} = pinv(C)*S;
     
+    % for pointcloud
+    points2D{i} = round(p_im1,0);
+    for j = 1:size(points2D{i},2)
+        imagePoints{i}(j,:) = double(castle{i}(points2D{i}(2,j),points2D{i}(1,j),:))./256;
+    end
+    
     fprintf('Finished 3D point set %d/%d\n', i, m);
     %%% plot stuff
-    subplot(4,4,i);
-    plotMatches3Im(castle{set1(1)}, castle{set1(2)}, castle{set1(3)}, p_im1, p_im2, p_im3)
+%     subplot(4,4,i);
+%     plotMatches3Im(castle{set1(1)}, castle{set1(2)}, castle{set1(3)}, p_im1, p_im2, p_im3)
 end
 
 %     %%% get image points (clean)
@@ -232,19 +242,26 @@ end
     
 
 %% Procrustes
+% 3d transform
 for i = 1:(m-1)
     % select points
-    X = Sn{i}(:,set_mat{i}(1,:))'; 
-    Y = Sn{i+1}(:,set_mat{i}(2,:))';
+    X{i} = Sn{i}(:,set_mat{i}(1,:))'; 
+    Y{i} = Sn{i+1}(:,set_mat{i}(2,:))';
     % transform matching points across big set to prev. viewpoints
-    [d,Z,transform]=procrustes(X,Y);
+    [d,Z{i},transform{i}]=procrustes(X{i},Y{i});
     % transform all points to prev. viewpoint
-    Sn{i+1} = (transform.b.*Sn{i+1}'*transform.T + transform.c(1,:).*ones(length(Sn{i+1}),3))';
+    Sn{i+1} = (transform{i}.b.*Sn{i+1}'*transform{i}.T + transform{i}.c(1,:).*ones(length(Sn{i+1}),3))';
 end
-% plot it
+
+%% get pointcloud
+
+Sn_cloud = cell2mat(Sn);
+color_cloud = cell2mat(imagePoints');
+
+cloud = pointCloud(Sn_cloud', 'Color', color_cloud);
+
+% plot pointcloud
 figure;
-for i = 1:m
-    grid on
-    plot3(Sn{i}(1,:),Sn{i}(2,:),Sn{i}(3,:),'k.')
-    hold on
-end
+pcshow(cloud,'MarkerSize', 20)
+
+% interpolate the pointcloud with surf...
