@@ -1,7 +1,6 @@
-function[F, idx_inliers, pL, pR] = eight_point_ransac( points_left, points_right, sampson_threshold )
+function[F, idx_inliers, pL, pR, sampdist] = eight_point_ransac( points_left, points_right, sampson_threshold, n_loops)
 %EIGHT_POINT_RANSAC Summary of this function goes here
 %   Detailed explanation goes here
-
 pL = points_left;
 pR = points_right;
 thr = sampson_threshold;
@@ -12,12 +11,15 @@ thr = sampson_threshold;
 [pR_N, TR] = normalizePoints(pR);
 
 %% 2.) Apply RANSAC
-
-% sample 8 points and set nr. of loops
 m = 8; % minimal seed
-w = 0.5; % prob of selecting inlier
-L = ceil((log10(1-0.999)/log10(1-w^m))); % nr. of loops
-%L = 1000;
+% check if nr. of loops is given, else estimate
+if nargin< 4
+    % sample 8 points and set nr. of loops
+    w = 0.5; % prob of selecting inlier
+    L = ceil((log10(1-0.999)/log10(1-w^m))); % nr. of loops
+else
+    L = n_loops;
+end
 
 % intial conditions
 N = size(pL, 2); % nr. of points
@@ -37,18 +39,15 @@ for i = 1:L
     pR_s = pR_N(:,s);
     % Compute normalized fundamental matrix w/ sampled points
     F_N = computeFundamental(pL_s, pR_s);
-    
     %%% 2b) Concensus Stage:
     for j = 1:N
-        % simplify the notation
-        pL_j = pL_N(:,j); 
-        pR_j = pR_N(:,j); 
-        % more simplified notations because matlab can't into indexing
-        FpL2 = (F_N*pL_j).^2;
-        FTpL2 = (F_N'*pL_j).^2;
+        % Sampson error
+        FpL = F_N*pL_N;
+        FtpR = F_N'*pR_N;
+        
         % Compute pairwise Sampson distance between all pixels
-        samp_dist(j) = ((pR_j'*F_N*pL_j)^2)...
-                        /(FpL2(1)+FpL2(2)+FTpL2(1)+FTpL2(2));
+        samp_dist(j) = ((pR_N(:,j)'*F_N*pL_N(:,j))^2)...
+                        /(FpL(1,j)^2+FpL(2,j)^2+FtpR(1,j)^2+FtpR(2,j)^2);
     end
     % Find indices of inlier points
     idx_inliers = find(samp_dist<thr);
@@ -61,17 +60,17 @@ for i = 1:L
         n_inliers_best = n_inliers;
         pL_best = pL(:,idx_inliers); % return the unnormalized points
         pR_best = pR(:,idx_inliers); 
+        sampdist_best = samp_dist;
     end
 end
 %%% 2c.) Return best fit
-F_N = F_best;
+F_N  = F_best;
 idx_inliers = idx_best;
 pL = pL_best;
 pR = pR_best;
-
+sampdist = sampdist_best;
 %% 3.) Denormalize F
 F = TR'*F_N*TL;
-
 return
 end
 
