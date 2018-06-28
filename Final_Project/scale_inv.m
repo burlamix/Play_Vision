@@ -1,4 +1,4 @@
-function points = scale_inv(I)
+function points = scale_inv(I,th_num)
 
 img_height  = size(I,1);
 img_width   = size(I,2);
@@ -11,7 +11,7 @@ harris_point = zeros(0,3);
 
 %calculating the harris key point for each different sigma
 for i= 1:num_sigma
-    [l,c] = harris_s(I,sigma_array(i));
+    [l,c] = harris_s(I,sigma_array(i),th_num);
     n = size(l,1);
     harris_point(end+1:end+n,:) = [l,c,repmat(i,[n,1])];
 end

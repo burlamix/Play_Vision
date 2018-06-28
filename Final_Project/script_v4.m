@@ -19,7 +19,7 @@ for i = 1:N
     %castle{i} = castle{i}(500:2200,500:3500,:);
     castle_gray{i} = single(rgb2gray(castle{1,i}))./255;
     %[feats{i}, desc{i}] = vl_sift(castle_gray{i}, 'PeakThresh', 0.005, 'EdgeThresh',10);
-    [feats{i}, desc{i}] = my_vl_sift(castle_gray{i});
+    [feats{i}, desc{i}] = my_vl_sift(castle_gray{i},0.001);
 
     Xfeats = feats{i}(1,:);
     Yfeats = feats{i}(2,:);

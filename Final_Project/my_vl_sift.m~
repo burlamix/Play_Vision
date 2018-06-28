@@ -1,4 +1,4 @@
-function [f,d]= my_vl_sift(Ia,th_num)
+function [f,d]= my_vl_sift(Ia)
 
 points_inv = scale_inv(Ia,th_num);
 

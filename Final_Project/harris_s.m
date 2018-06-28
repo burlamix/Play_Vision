@@ -1,4 +1,4 @@
-function [r, c] = harris_s(I, sigma)
+function [r, c] = harris_s(I, sigma, th_num)
 % inputs: 
 % im: double grayscale image
 % sigma: integration-scale
@@ -38,6 +38,7 @@ R = det_M - (k * (trace_M.^2) );
 
 % Set the threshold 
 threshold = 0.001*max(max(R));
+%threshold = th_num*max(max(R));
 
 % Find local maxima
 % Dilation will alter every pixel except local maxima in a 3x3 square area.
