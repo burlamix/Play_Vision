@@ -1,4 +1,4 @@
-function[F, idx_inliers, pL, pR, sampdist] = eight_point_ransac( points_left, points_right, sampson_threshold, n_loops)
+function[F, idx_inliers, pL, pR] = eight_point_ransac( points_left, points_right, sampson_threshold, n_loops)
 %EIGHT_POINT_RANSAC Summary of this function goes here
 %   Detailed explanation goes here
 pL = points_left;
@@ -40,14 +40,14 @@ for i = 1:L
     % Compute normalized fundamental matrix w/ sampled points
     F_N = computeFundamental(pL_s, pR_s);
     %%% 2b) Concensus Stage:
+    % Simplify Notation
+    FpL = F_N*pL_N;
+    FtpR = F_N'*pR_N;
+    
     for j = 1:N
-        % Sampson error
-        FpL = F_N*pL_N;
-        FtpR = F_N'*pR_N;
-        
         % Compute pairwise Sampson distance between all pixels
-        samp_dist(j) = ((pR_N(:,j)'*F_N*pL_N(:,j))^2)...
-                        /(FpL(1,j)^2+FpL(2,j)^2+FtpR(1,j)^2+FtpR(2,j)^2);
+        samp_dist(j) = (pR_N(:,j)'*F_N*pL_N(:,j))^2 / ...
+            (FpL(1,j)^2 + FpL(2,j)^2 + FtpR(1,j)^2 + FtpR(2,j)^2);
     end
     % Find indices of inlier points
     idx_inliers = find(samp_dist<thr);
@@ -71,6 +71,9 @@ pR = pR_best;
 sampdist = sampdist_best;
 %% 3.) Denormalize F
 F = TR'*F_N*TL;
+if F(3,3) < 0
+    F = -F;
+end
 return
 end
 
