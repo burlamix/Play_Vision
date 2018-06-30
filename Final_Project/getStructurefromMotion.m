@@ -69,6 +69,8 @@ for i = 1:N
     
     %%% structure from motion
     % Center D
+    N_view = size(D{i}, 1) / 2; N_point = size(D{i}, 2);
+
     Dn  = D{i} - repmat(sum(D{i},2)/n_pts, 1, n_pts);
     % SVD of normalized D
     [U, W, V] = svd(Dn);
@@ -98,6 +100,23 @@ for i = 1:N
         Mn{i} = M;
         Sn{i} = S;
     end
+    
+    
+    %boundle
+
+    MS_0 = [Mn{i}(:); Sn{i}(:)];
+    %options = optimoptions(@lsqnonlin, 'Algorithm', 'levenberg-marquardt', 'InitDamping', 1e2, 'ScaleProblem', 'jacobian', 'StepTolerance', 1e-16, 'OptimalityTolerance', 1e-16, 'FunctionTolerance', 1e-16, 'Display', 'iter');
+    options = optimoptions(@fminunc, 'Display', 'iter');
+    
+    MS = fminunc(@(x)bundleAdjustment(Dn, x, N_view, N_point), MS_0, options);
+    
+    % Get back S & M
+    M_BA = reshape(MS(1:N_view*6), [2*N_view 3]);
+    S_BA = reshape(MS(end-3*N_point+1:end), [3 N_point]);
+
+    % Put in final array
+    Sn{i} = S_BA;
+    Mn{i} = M_BA;
     
 
     

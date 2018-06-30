@@ -203,7 +203,6 @@ fprintf('stitching completed.\n\n');
 
 %% 5) Bundle Adjustment
 
-
 %% 6a) Get pointcloud 
 %%%%%%% get cloud
 cloud = getCloud(castle, S_stitched, D);
@@ -216,6 +215,7 @@ ax = pcshow(cloud,'MarkerSize', 25);
 %% 6b) Get surface plot
 % get triangulation of pointcloud
 [XYZr, Colorsr, simp_idx, simp_idx_filt] = getSurf(cloud, 5);
+
 
 % % triplot w/ colors
 % figure;
