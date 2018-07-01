@@ -9,11 +9,13 @@ width = size(image_set{1},2);
 
 % join all equally sized images
 image_merge = [];
+tit = sprintf('Matched point in images: ');
 for i = 1:N
     j = idx_image(i);
     image_merge = [image_merge image_set{j}];
+    tit = strcat(tit,sprintf('%d-',idx_image(i)));
 end
-
+tit(end) = [];
 % plot merged images
 imshow(image_merge);
 
@@ -32,7 +34,7 @@ end
 hold on
 plot(points_plot(1,:), points_plot(2,:),'g.','MarkerSize',14,'LineWidth',2)
 plot(points_plot(1,:), points_plot(2,:),'r')
-
+title(tit,'FontSize',20);
 return
 end
 

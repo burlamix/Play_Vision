@@ -6,7 +6,7 @@ close all;
 
 %% Load Images 
 % select image folder (model_castle, model_castle_TA or TeddyBearPNG)
-image_folder = 'model_castle_TA';
+image_folder = 'TeddyBearPNG';
 image_files = dir(strcat(image_folder,'/*.png'));
 N = length(image_files);
 
@@ -183,15 +183,16 @@ fprintf('Constructing pointview matrix from best matches...');
 point_mat_ind = chaining(best_match_indices);
 
 fprintf("Finished\n\n")
-
+%%
 k = randi(size(point_mat_ind,2));
+%k = 15907;
 figure;
 pts_SFM = plotPointMatrix(castle, all_feature_points, point_mat_ind, k);
 
 
 %% 4) Structure-from-Motion
 fprintf('Computing Structure from Motion...\n');
-% nr. of images to compare matches between ( > 1), report says 3 or 4
+% nr. of images to compare matches between ( > 2), report says 3 or 4
 m = 3;
 [S, M, D, set_mutuals, C, p] = getStructurefromMotion(m, point_mat_ind, all_feature_points);
 fprintf('Stucture from Motion completed.\n\n');
@@ -208,23 +209,26 @@ fprintf('stitching completed.\n\n');
 cloud = getCloud(castle, S_stitched, D);
 
 % remove noise
-[cloud, ~] = pcdenoise(cloud, 'NumNeighbors', 50);
+%[cloud, ~] = pcdenoise(cloud, 'NumNeighbors', 50);
 figure;
 ax = pcshow(cloud,'MarkerSize', 25);
+xlabel('x axis');
+ylabel('y axis');
+zlabel('z axis');
 
 %% 6b) Get surface plot
 % get triangulation of pointcloud
-[XYZr, Colorsr, simp_idx, simp_idx_filt] = getSurf(cloud, 5);
+surf_thr = 60;
+[XYZr, Colorsr, simp_idx, simp_idx_filt] = getSurf(cloud,surf_thr);
 
-
-% % triplot w/ colors
-% figure;
-% trisurf(simp_idx,XYZr(:,1),XYZr(:,2),XYZr(:,3),[1:size(XYZr,1)]','FaceColor','flat','EdgeColor','interp');
-% colormap(double(Colorsr)./256);
+% triplot w/ colors
+figure;
+trisurf(simp_idx,XYZr(:,1),XYZr(:,2),XYZr(:,3),[1:size(XYZr,1)]','FaceColor','flat','EdgeColor','none');
+colormap(double(Colorsr)./256);
 
 % filtered triplot w/ colors
 figure;
-trisurf(simp_idx_filt,XYZr(:,1),XYZr(:,2),XYZr(:,3),[1:size(XYZr,1)]','FaceColor','flat','EdgeColor','flat')
+trisurf(simp_idx_filt,XYZr(:,1),XYZr(:,2),XYZr(:,3),[1:size(XYZr,1)]','FaceColor','flat','EdgeColor','none')
 colormap(double(Colorsr)./256);
 
     

@@ -32,6 +32,7 @@ pointviewmatrix(N+1,:) = [];
 pointviewmatrix(pointviewmatrix<1) = NaN;
 pointviewmatrix = sortrows(pointviewmatrix',1)';
 pointviewmatrix(isnan(pointviewmatrix)) = 0;
+
 return
 end
 

@@ -20,9 +20,9 @@ for i = 1:size(simp_idx,1)
     v1 = XYZr(p1,1:2);
     v2 = XYZr(p2,1:2);
     % simplex lengths
-    si(i,1) = sqrt(sum(v0-v1)^2);
-    si(i,2) = sqrt(sum(v1-v2)^2);
-    si(i,3) = sqrt(sum(v2-v0)^2);
+    si(i,1) = pdist([v0;v1]);
+    si(i,2) = pdist([v1;v2]);
+    si(i,3) = pdist([v2;v0]);
 end
 
 % remove some 'wrong' simplices

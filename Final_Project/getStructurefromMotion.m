@@ -62,7 +62,7 @@ for i = 1:N
     % now get the image coordinates of the current set of m images
     n_pts = size(pm_set_current,2);
     D{i} = zeros(2*m,n_pts);
-    for j = 1:(m-1)
+    for j = 1:m
         % cannot slice the cell array so have to loop through it...
         D{i}(2*j-1:2*j,:) = all_feature_points{set_current(j)}(:,pm_set_current(j,:));
     end
@@ -84,7 +84,7 @@ for i = 1:N
     
     %%% now solve for affine ambiguity:
     % find 3x3 matrix C such that axes of M are orthogonal
-    A1 = M;
+    A1 = M(1:2,:);
     L0=pinv(A1'*A1);
     % apply non-lin lst squares to solve for L
     lsq_opts = optimoptions('lsqnonlin','Display','off'); % hide msg in prompt
@@ -106,7 +106,7 @@ for i = 1:N
 
     MS_0 = [Mn{i}(:); Sn{i}(:)];
     %options = optimoptions(@lsqnonlin, 'Algorithm', 'levenberg-marquardt', 'InitDamping', 1e2, 'ScaleProblem', 'jacobian', 'StepTolerance', 1e-16, 'OptimalityTolerance', 1e-16, 'FunctionTolerance', 1e-16, 'Display', 'iter');
-    options = optimoptions(@fminunc, 'Display', 'iter');
+    options = optimoptions(@fminunc, 'Display', 'off');
     
     MS = fminunc(@(x)bundleAdjustment(Dn, x, N_view, N_point), MS_0, options);
     
@@ -118,6 +118,7 @@ for i = 1:N
     Sn{i} = S_BA;
     Mn{i} = M_BA;
     
+    fprintf('Finished image set %d/%d\n',i,N);
 
     
 end

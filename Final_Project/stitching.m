@@ -12,10 +12,9 @@ c(:,1) = 0; % translation
 %figure;
 % 3d transform
 for i = 1:(N-1)
-    i
     % want to find the transform between mutual 3D points of current and next set
-    X = S{i}(:,set_mutuals{i}(1,:))'
-    Y = S{i+1}(:,set_mutuals{i}(2,:))'
+    X = S{i}(:,set_mutuals{i}(1,:))';
+    Y = S{i+1}(:,set_mutuals{i}(2,:))';
     % calc. a 3D mapping between these MUTUAL points of current and next set
     [~,~,transform]=procrustes(X,Y);
     % now transform ALL points in the next set with the found 3D mapping
