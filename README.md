@@ -14,6 +14,8 @@ To run an example simple run the Main_3D.m to get the 3D ricostruction of the ex
 
 ### Some result
 
-<img src="result/teddy_big_3.jpg" align="left" height="130"/>
+
+<img src="TeddyBearPNG/obj02_001.png" align="left" height="330"/>
+<img src="result/teddy_big_3.jpg" align="left" height="330"/>
 Point cloud of teddy bear
 
