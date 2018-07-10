@@ -6,7 +6,7 @@ close all;
 
 %% Load Images 
 % select image folder (model_castle, model_castle_TA or TeddyBearPNG)
-image_folder = 'TeddyBearPNG';
+image_folder = 'model_castle_TA';
 image_files = dir(strcat(image_folder,'/*.png'));
 N = length(image_files);
 
@@ -211,7 +211,7 @@ cloud = getCloud(castle, S_stitched, D);
 % remove noise
 %[cloud, ~] = pcdenoise(cloud, 'NumNeighbors', 50);
 figure;
-ax = pcshow(cloud,'MarkerSize', 25);
+ax = pcshow(cloud,'MarkerSize', 500);
 xlabel('x axis');
 ylabel('y axis');
 zlabel('z axis');
